@@ -4,9 +4,11 @@ emoji: 🤖
 colorFrom: blue
 colorTo: green
 sdk: docker
+sdk_version: "1.0"
 app_port: 7860
+app_file: app/main.py
+pinned: false
 ---
-
 # 🧠 EADI-OpenEnv
 
 ### Emotion-Aware Decision Intelligence Environment
