@@ -7,7 +7,8 @@ app = FastAPI()
 env = EADIEnvironment()
 
 
-@app.post("/reset")
+# Allow both GET and POST for /reset
+@app.api_route("/reset", methods=["GET", "POST"])
 def reset():
     obs = env.reset()
     return {
@@ -16,10 +17,14 @@ def reset():
     }
 
 
-@app.post("/step")
-def step(action: dict):
-    act = Action(**action)
+# Allow both GET and POST for /step
+@app.api_route("/step", methods=["GET", "POST"])
+def step(action: dict = None):
+    if action is None:
+        # Default action if GET request (optional: return error instead)
+        return {"error": "Action data required for step endpoint."}
 
+    act = Action(**action)
     result = env.step(act)
 
     return {
@@ -30,7 +35,8 @@ def step(action: dict):
     }
 
 
-@app.get("/state")
+# Allow both GET and POST for /state
+@app.api_route("/state", methods=["GET", "POST"])
 def state():
     obs = env.state_view()
     return obs.dict()
