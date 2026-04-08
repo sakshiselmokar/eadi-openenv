@@ -139,3 +139,7 @@ def run_agent():
         "steps_taken": len(trajectory),
         "total_reward": sum(rewards)
     }
+
+print("🚀 REGISTERED ROUTES:")
+for route in app.routes:
+    print(route.path)
