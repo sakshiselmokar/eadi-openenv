@@ -2,10 +2,16 @@
 name = "eadi-openenv"
 version = "0.1.0"
 description = "Emotion-Aware Decision Intelligence OpenEnv"
-authors = [
-  { name = "Sakshi Selmokar" }
+authors = [{ name = "Sakshi Selmokar" }]
+
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "openenv-core>=0.2.0"
 ]
-dependencies = []
+
+[project.scripts]
+server = "server.app:app"
 
 [build-system]
 requires = ["setuptools"]
