@@ -223,5 +223,3 @@ Produces structured logs:
 EADI moves beyond traditional benchmarks by evaluating **how agents behave in human-like decision environments**, not just what answers they produce.
 
 It serves as a step toward **more reliable, context-aware, and human-aligned AI systems**.
-
----
