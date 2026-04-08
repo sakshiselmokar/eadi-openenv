@@ -27,10 +27,10 @@ pinned: false
 
 ## 🎥 Demo Video
 
-👉 *(Add your YouTube demo link here)*  
+👉 https://youtu.be/2wkTwWpMnK0 
 ```
 
-[https://youtube.com/your-demo-video](https://youtube.com/your-demo-video)
+
 
 ````
 
