@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from env.environment import EADIEnvironment
 from env.models import Action
 from env.graders import grade_task
-
+print("🔥 APP STARTED SUCCESSFULLY")
 import os
 from typing import List
 
 app = FastAPI()
-
+print("✅ APP CREATED")
 # ✅ IMPORTANT for frontend connection
 app.add_middleware(
     CORSMiddleware,
