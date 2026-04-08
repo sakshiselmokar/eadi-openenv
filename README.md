@@ -9,176 +9,181 @@ app_port: 7860
 app_file: app/main.py
 pinned: false
 ---
-# 🧠 EADI-OpenEnv
 
+# 🧠 EADI-OpenEnv  
 ### Emotion-Aware Decision Intelligence Environment
 
 ---
 
-## 🚀 Overview
+## 🚀 Live Demo
 
-EADI (Emotion-Aware Decision Intelligence) is a real-world OpenEnv environment designed to evaluate how AI agents make decisions under **emotional pressure, uncertainty, and time constraints**.
+### 🌐 Interactive Frontend
+👉 https://eadi-mindscape.vercel.app/
 
-Unlike traditional environments that focus only on logic or accuracy, EADI introduces **human-centric decision dynamics**, where agents must:
-
-* Understand emotional context
-* Reduce uncertainty through information gathering
-* Take timely and effective actions
+### ⚙️ API (Swagger UI)
+👉 https://practiceof-eadi-openenv.hf.space/docs  
 
 ---
 
-## 🌍 Why This Matters
+## 🎥 Demo Video
 
-Real-world decision-making is rarely perfect or fully informed.
+👉 *(Add your YouTube demo link here)*  
+```
 
-AI systems today are increasingly deployed in domains such as:
+[https://youtube.com/your-demo-video](https://youtube.com/your-demo-video)
 
-* Customer support systems
-* Startup and business decision-making
-* Healthcare response scenarios
-* Crisis management tools
+````
 
-In these situations, **handling emotions + incomplete information + time pressure** is critical.
+---
 
-EADI provides a structured benchmark to evaluate such capabilities.
+## 🌍 Overview
+
+**EADI (Emotion-Aware Decision Intelligence)** is a next-generation AI evaluation environment designed to test how intelligent agents make decisions under:
+
+- 😡 Emotional pressure  
+- ❓ Uncertainty  
+- ⏳ Time constraints  
+
+Unlike traditional benchmarks, EADI simulates **human-like decision scenarios**, where correctness alone is not enough — **timing, empathy, and reasoning matter**.
+
+---
+
+## 💡 Why This Matters
+
+Modern AI systems operate in real-world domains like:
+
+- 🧑‍💼 Customer Support  
+- 🏥 Healthcare Response  
+- 🚨 Crisis Management  
+- 📈 Business Decision-Making  
+
+These environments involve:
+- Incomplete information  
+- Emotional users  
+- Urgent decisions  
+
+👉 EADI evaluates **how AI behaves**, not just what it predicts.
 
 ---
 
 ## 🧩 Environment Design
 
-Each episode simulates a real-world scenario with:
+Each episode simulates a real-world interaction:
 
-* A user message
-* Emotional state (angry, confused, anxious)
-* Known facts vs unknown variables
-* Limited time steps
+- User message  
+- Emotional state *(angry, confused, anxious)*  
+- Known facts vs unknowns  
+- Limited decision steps  
 
-The agent must navigate this environment by choosing appropriate actions.
+Agents must balance:
+> 🧠 Logic + ❤️ Empathy + ⚡ Timing
 
 ---
 
 ## 🎮 Action Space
 
-Agents can choose from:
-
-* `apologize` → address emotional state
-* `clarify` → partially stabilize situation
-* `gather_info` → reduce uncertainty
-* `act_now` → take final decision
-* `delay` → postpone action (penalty)
-* `ignore` → harmful action (penalty)
+| Action        | Purpose |
+|--------------|--------|
+| `apologize`  | Handle emotional distress |
+| `clarify`    | Improve understanding |
+| `gather_info`| Reduce uncertainty |
+| `act_now`    | Make final decision |
+| `delay`      | Postpone (penalty) |
+| `ignore`     | Harmful (penalty) |
 
 ---
 
 ## 👁 Observation Space
 
-Each step provides:
+At each step, agents receive:
 
-* User message
-* Current emotion
-* Context (startup, healthcare, tech, etc.)
-* Known facts
-* Unknown factors
-* Remaining time
-* Action history
+- User message  
+- Emotion  
+- Context  
+- Known facts  
+- Unknowns  
+- Time remaining  
+- Action history  
 
 ---
 
 ## 🎯 Tasks
 
-### 🟢 Task Easy — Emotion Stabilization
+### 🟢 Easy — Emotion Stabilization  
+Focus: Respond correctly to emotional signals  
 
-Goal: Reduce emotional distress
-Focus: Correct emotional response
+### 🟡 Medium — Information-Guided Decision  
+Focus: Gather missing info before acting  
 
----
-
-### 🟡 Task Medium — Information-Guided Decision
-
-Goal: Gather necessary information before acting
-Focus: Logical sequencing
-
----
-
-### 🔴 Task Hard — Strategic Multi-Step Decision
-
-Goal:
-
-* Stabilize emotion
-* Reduce uncertainty
-* Take correct action
-
-Focus: **multi-step reasoning under constraints**
+### 🔴 Hard — Strategic Multi-Step Reasoning  
+Focus:
+- Emotional handling  
+- Uncertainty reduction  
+- Optimal decision timing  
 
 ---
 
-## 🏆 Reward Design
+## 🏆 Reward System
 
-The reward function provides **dense feedback**:
+A **dense, multi-factor reward design**:
 
-### Components:
+- Emotion Score → empathy handling  
+- Decision Score → correctness  
+- Efficiency Score → optimal steps  
 
-* Emotion Score → handling user emotion
-* Decision Score → correctness of actions
-* Efficiency Score → optimal step usage
+✨ Features:
+- Partial rewards  
+- Penalties for premature actions  
+- Bonus for optimal sequences  
 
-### Key Features:
-
-* Partial rewards for progress
-* Penalties for premature decisions
-* Bonus for optimal action sequence
-
-Example ideal sequence:
-
+**Ideal Strategy:**
 ```text
 apologize → gather_info → act_now
-```
+````
 
 ---
 
 ## 🤖 Baseline Agent
 
-We provide a deterministic baseline agent that:
+A deterministic agent that:
 
-* Handles emotion first
+* Handles emotions first
 * Gathers missing information
 * Acts only when confident
 
-This ensures:
-
-* Reproducibility
-* Stable evaluation
-* No external dependency
+✅ Ensures reproducibility
+✅ Provides a strong benchmark baseline
 
 ---
 
-## 🧪 Running the Environment
+## 🔌 API Endpoints
 
-### 1. Install dependencies
+| Method | Endpoint     | Description               |
+| ------ | ------------ | ------------------------- |
+| POST   | `/reset`     | Reset environment         |
+| POST   | `/step`      | Take an action            |
+| GET    | `/state`     | Get current state         |
+| POST   | `/run-agent` | Run full autonomous agent |
 
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Run API server
-
-```bash
-python -m uvicorn app.main:app --reload
-```
-
-### 3. Test endpoints
-
-* POST `/reset`
-* POST `/step`
-* GET `/state`
+👉 Try it here:
+[https://practiceof-eadi-openenv.hf.space/docs](https://practiceof-eadi-openenv.hf.space/docs)
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker Deployment
 
 ```bash
 docker build -t eadi-openenv .
 docker run -p 7860:7860 eadi-openenv
+```
+
+---
+
+## 🧪 Run Locally
+
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 7860
 ```
 
 ---
@@ -189,37 +194,55 @@ docker run -p 7860:7860 eadi-openenv
 python inference.py
 ```
 
-Produces structured logs:
+Example output:
 
 ```
-[START] ...
-[STEP] ...
-[END] ...
+[START]
+[STEP]
+[END]
 ```
 
 ---
 
-## 🧠 Key Contributions
+## 🧠 Key Innovations
 
 * Emotion-aware RL environment
-* Multi-step decision modeling
-* Uncertainty-driven reasoning
+* Decision-making under uncertainty
+* Multi-step reasoning evaluation
 * Sequence-sensitive reward system
-* Fully OpenEnv compliant
+* Real-world simulation scenarios
 
 ---
 
-## 🔮 Future Extensions
+## 🔮 Future Scope
 
 * Dynamic emotion transitions
-* Multi-agent interaction
+* Multi-agent collaboration
 * Real-time streaming inputs
-* Integration with LLM-based policies (e.g., Gemma family models)
+* Integration with LLM-based agents (Gemma, etc.)
 
 ---
 
 ## 🏁 Conclusion
 
-EADI moves beyond traditional benchmarks by evaluating **how agents behave in human-like decision environments**, not just what answers they produce.
+EADI shifts the focus from:
 
-It serves as a step toward **more reliable, context-aware, and human-aligned AI systems**.
+> ❌ “Is the answer correct?”
+> to
+> ✅ “Was the decision **human-aware, timely, and intelligent**?”
+
+---
+
+## 👩‍💻 Author
+
+**Sakshi Selmokar**
+AI/ML Engineer
+
+**Prajakta Hake**
+AI/ML Engineer
+
+---
+
+⭐ If you found this interesting, consider starring the repo!
+
+```
