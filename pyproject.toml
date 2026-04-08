@@ -1,0 +1,12 @@
+[project]
+name = "eadi-openenv"
+version = "0.1.0"
+description = "Emotion-Aware Decision Intelligence OpenEnv"
+authors = [
+  { name = "Sakshi Selmokar" }
+]
+dependencies = []
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
