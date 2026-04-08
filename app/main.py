@@ -68,7 +68,13 @@ def reset():
         "observation": obs.dict(),
         "done": False
     }
-
+@app.get("/reset")
+def reset_get():
+    obs = env.reset()
+    return {
+        "observation": obs.dict(),
+        "done": False
+    }
 
 @app.post("/step")
 def step(action: dict):
