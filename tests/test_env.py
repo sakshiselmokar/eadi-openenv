@@ -6,9 +6,12 @@ from env.models import Observation
 from env.environment import EADIEnvironment
 from env.models import Action
 from env.graders import grade_task
+env = EADIEnvironment()
+state = env.reset(task="task_hard")
 
-# history = ["apologize", "gather_info", "act_now"]
-history = ["ignore", "delay"]
-print("Easy:", grade_task("task_easy", history))
-print("Medium:", grade_task("task_medium", history))
-print("Hard:", grade_task("task_hard", history))
+for _ in range(5):
+    action = Action(action_type="ignore")  # bad action
+    result = env.step(action)
+    print(result)
+    if result.done:
+        break

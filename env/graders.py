@@ -22,20 +22,20 @@ def evaluate_emotion(history: List[str]) -> float:
 def evaluate_efficiency(history: List[str], max_steps: int) -> float:
     return 1.0 if len(history) <= max_steps else 0.5
 
+def grade_task(task_id: str, final_state: dict, history: list) -> float:
+    score = 0.0
 
-def grade_task(task_id: str, history: List[str]) -> float:
+    # Emotion stability
+    if final_state["emotion"] in ["calm", "neutral"]:
+        score += 0.4
 
-    if task_id == "task_easy":
-        return evaluate_emotion(history)
+    # Uncertainty resolution
+    if len(final_state["unknowns"]) == 0:
+        score += 0.4
 
-    elif task_id == "task_medium":
-        return evaluate_sequence(history)
+    # Efficiency
+    if len(history) <= 3:
+        score += 0.2
 
-    elif task_id == "task_hard":
-        return max(0.0, min(1.0, (
-            0.4 * evaluate_sequence(history) +
-            0.3 * evaluate_emotion(history) +
-            0.3 * evaluate_efficiency(history, 4)
-        )))
+    return max(0.0, min(1.0, score))
 
-    return 0.0
