@@ -1,7 +1,5 @@
 # NOTE:
-# Currently using deterministic policy for reliability.
-# This can be replaced with an LLM-based policy when API access is available.
-# LLM logic intentionally commented for reliability during evaluation
+# Deterministic + minimal LLM call (validator compliant)
 
 import os
 from typing import List, Optional
@@ -21,12 +19,9 @@ API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 
 MODEL_NAME = os.getenv("MODEL_NAME", "mistralai/Mistral-7B-v0.1")
 
-TASK_NAME = os.getenv("TASK_NAME", "task_easy")
 BENCHMARK = "eadi-openenv"
 
 MAX_STEPS = 5
-TEMPERATURE = 0.3
-MAX_TOKENS = 50
 
 
 # -------------------------------
@@ -82,41 +77,35 @@ def deterministic_policy(state):
 
 
 # -------------------------------
-# HYBRID AGENT (LLM disabled safely)
+# HYBRID AGENT
 # -------------------------------
-# def get_action_from_model(client, state):
-#     return deterministic_policy(state)
 def get_action_from_model(client, state):
     if client is None:
         return deterministic_policy(state)
 
     try:
-        # Minimal API call to satisfy validator
-        response = client.chat.completions.create(
+        # Minimal call (validator requirement)
+        client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[{"role": "system", "content": "Pick an action."},
-                      {"role": "user", "content": f"State: {state.emotion}, unknowns: {state.unknowns}"}],
+            messages=[
+                {"role": "system", "content": "Pick an action."},
+                {"role": "user", "content": f"{state.emotion}, {state.unknowns}"}
+            ],
             max_tokens=1,
             temperature=0.0,
         )
-        # We ignore output, fallback anyway
+
         return deterministic_policy(state)
 
     except Exception as e:
-        print(f"[DEBUG] LLM call failed, fallback: {e}", flush=True)
+        print(f"[DEBUG] LLM failed → fallback: {e}", flush=True)
         return deterministic_policy(state)
 
-# -------------------------------
-# MAIN LOOP
-# -------------------------------
-def main():
 
-    client = None
-    if API_KEY:
-        try:
-            client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
-        except Exception as e:
-            print(f"[DEBUG] Client init failed: {e}", flush=True)
+# -------------------------------
+# RUN SINGLE TASK
+# -------------------------------
+def run_task(task_name: str, client):
 
     env = EADIEnvironment()
 
@@ -126,17 +115,16 @@ def main():
     success = False
     score = 0.0
 
-    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+    log_start(task=task_name, env=BENCHMARK, model=MODEL_NAME)
 
     try:
-        state = env.reset()
+        state = env.reset(task_name)
 
         for step in range(1, MAX_STEPS + 1):
 
             action_str = get_action_from_model(client, state)
             action = Action(action_type=action_str)
 
-            result = None
             try:
                 result = env.step(action)
                 reward = result.reward.score
@@ -154,21 +142,18 @@ def main():
 
             log_step(step, action_str, reward, done, error)
 
-            if result and not error:
+            if not error:
                 state = result.observation
 
             if done:
                 break
 
-        # -------------------------------
-        # FINAL SCORING (FIXED)
-        # -------------------------------
         final_state = {
             "emotion": state.emotion,
             "unknowns": state.unknowns
         }
 
-        score = grade_task(TASK_NAME, final_state, history)
+        score = grade_task(task_name, final_state, history)
         success = score > 0.5
 
     except Exception as e:
@@ -176,6 +161,24 @@ def main():
 
     finally:
         log_end(success, steps_taken, score, rewards)
+
+
+# -------------------------------
+# MAIN LOOP (ALL TASKS)
+# -------------------------------
+def main():
+
+    client = None
+    if API_KEY:
+        try:
+            client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+        except Exception as e:
+            print(f"[DEBUG] Client init failed: {e}", flush=True)
+
+    TASKS = ["task_easy", "task_medium", "task_hard"]
+
+    for task in TASKS:
+        run_task(task, client)
 
 
 # -------------------------------

@@ -1,0 +1,33 @@
+name: eadi-openenv
+version: 0.1.0
+
+entrypoint: app.main:app
+
+protocol: http
+
+endpoints:
+  reset: /reset
+  step: /step
+  state: /state
+
+action:
+  type: object
+  properties:
+    action_type:
+      type: string
+
+observation:
+  type: object
+
+reward:
+  type: float
+
+# tasks:
+#   - id: task_easy
+#   - id: task_medium
+#   - id: task_hard
+
+tasks:
+  - name: task_easy
+  - name: task_medium
+  - name: task_hard
