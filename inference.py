@@ -2,8 +2,8 @@
 # Currently using deterministic policy for reliability.
 # This can be replaced with an LLM-based policy when API access is available.
 # LLM logic intentionally commented for reliability during evaluation
+
 import os
-import asyncio
 from typing import List, Optional
 
 from openai import OpenAI
@@ -19,7 +19,6 @@ from env.graders import grade_task
 API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 
-# Use your approved model
 MODEL_NAME = os.getenv("MODEL_NAME", "mistralai/Mistral-7B-v0.1")
 
 TASK_NAME = os.getenv("TASK_NAME", "task_easy")
@@ -57,11 +56,10 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]):
 
 
 # -------------------------------
-# DETERMINISTIC FALLBACK POLICY
+# DETERMINISTIC POLICY
 # -------------------------------
 def deterministic_policy(state):
 
-    # 1. Handle emotions first
     if state.emotion in ["angry", "frustrated"]:
         if "apologize" not in state.history:
             return "apologize"
@@ -70,16 +68,13 @@ def deterministic_policy(state):
         if "clarify" not in state.history:
             return "clarify"
 
-    # 2. Gather info (limited)
     if state.unknowns:
         if state.history.count("gather_info") < 2:
             return "gather_info"
 
-    # 3. Time pressure → act
     if state.time_left <= 1:
         return "act_now"
 
-    # 4. If ready → act
     if not state.unknowns:
         return "act_now"
 
@@ -87,89 +82,17 @@ def deterministic_policy(state):
 
 
 # -------------------------------
-# HYBRID AGENT (LLM + FALLBACK)
+# HYBRID AGENT (LLM disabled safely)
 # -------------------------------
-
 def get_action_from_model(client, state):
     return deterministic_policy(state)
-
-    # # Emotion-first intelligence
-    # if state.emotion in ["angry", "frustrated"]:
-    #     if "apologize" not in state.history:
-    #         return "apologize"
-    #     return "clarify"
-
-    # if state.emotion in ["confused", "uncertain"]:
-    #     return "clarify"
-
-    # # Reduce uncertainty smartly
-    # if state.unknowns:
-    #     if state.history.count("gather_info") < 2:
-    #         return "gather_info"
-
-    # # Act when ready
-    # if not state.unknowns:
-    #     return "act_now"
-
-    # return "clarify"
-# def get_action_from_model(client: Optional[OpenAI], state):
-
-#     # If no client → fallback directly
-#     if client is None:
-#         return deterministic_policy(state)
-
-#     try:
-#         prompt = f"""
-#         You are an expert decision-making AI.
-
-#         Situation:
-#         Message: {state.message}
-#         Emotion: {state.emotion}
-#         Unknowns: {state.unknowns}
-#         Time left: {state.time_left}
-#         Past actions: {state.history}
-
-#         Choose the BEST action from:
-#         [apologize, clarify, gather_info, act_now, delay, ignore]
-
-#         Rules:
-#         - Handle emotions first
-#         - Reduce uncertainty before acting
-#         - Act when time is low
-
-#         Return ONLY the action name.
-#         """
-
-#         response = client.chat.completions.create(
-#             model=MODEL_NAME,
-#             messages=[
-#                 {"role": "system", "content": "You are a strategic AI decision agent."},
-#                 {"role": "user", "content": prompt},
-#             ],
-#             temperature=TEMPERATURE,
-#             max_tokens=10,
-#         )
-
-#         action = (response.choices[0].message.content or "").strip().lower()
-
-#         valid_actions = ["apologize", "clarify", "gather_info", "act_now", "delay", "ignore"]
-
-#         if action not in valid_actions:
-#             return deterministic_policy(state)
-
-#         return action
-
-#     except Exception as e:
-#         print(f"[DEBUG] LLM failed → fallback: {e}", flush=True)
-#         return deterministic_policy(state)
 
 
 # -------------------------------
 # MAIN LOOP
 # -------------------------------
-async def main():
+def main():
 
-    # Initialize client only if API key exists
     client = None
     if API_KEY:
         try:
@@ -195,6 +118,7 @@ async def main():
             action_str = get_action_from_model(client, state)
             action = Action(action_type=action_str)
 
+            result = None
             try:
                 result = env.step(action)
                 reward = result.reward.score
@@ -212,16 +136,25 @@ async def main():
 
             log_step(step, action_str, reward, done, error)
 
-            state = result.observation if not error else state
+            if result and not error:
+                state = result.observation
 
             if done:
                 break
 
         # -------------------------------
-        # FINAL SCORING
+        # FINAL SCORING (FIXED)
         # -------------------------------
-        score = grade_task(TASK_NAME, history)
+        final_state = {
+            "emotion": state.emotion,
+            "unknowns": state.unknowns
+        }
+
+        score = grade_task(TASK_NAME, final_state, history)
         success = score > 0.5
+
+    except Exception as e:
+        print(f"[FATAL ERROR] {e}", flush=True)
 
     finally:
         log_end(success, steps_taken, score, rewards)
@@ -231,4 +164,4 @@ async def main():
 # ENTRYPOINT
 # -------------------------------
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
